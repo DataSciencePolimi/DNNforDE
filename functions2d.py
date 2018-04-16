@@ -1,24 +1,24 @@
 import torch
 import numpy as np
 
-def real5(x, y):
-    return np.exp(-x)*(x+y**3)
+def real5(x1, x2):
+    return np.exp(-x1)*(x1+x2**3)
 
 def trial5(f, x):
-    print x.size()
-    return f(x)
-    x1 = x[0]
-    x2 = x[1]
+    x1 = x[:, 0]
+    x2 = x[:, 1]
     x2_3 = x2**3
     e1 = np.exp(-1.)
-    ex1 = np.exp(-x1)
-    A = (1-x1)*x2_3+x1*(1+x2_3)*e1+(1-x2)*x1#*(ex1-e1)+x2*((1+x1)*ex1-(1-x1-2*x1*e1))
-    return A + x1*(1-x1)*x2*(1-x2)*f(x)
+    ex1 = torch.exp(-x1)
+    
+    A = (1-x1)*x2_3+x1*(1+x2_3)*e1+(1-x2)*x1*(ex1-e1)+x2*((1+x1)*ex1-(1-x1+2*x1*e1))
+    return A + x1*(1-x1)*x2*(1-x2)*f(x).t()
 
 int5=(0, 1, 0, 1)
 
-def real6(x):
-    return torch.exp(-x/5)*torch.sin(x)
+def real6(x1, x2):
+    a=3
+    return 1#torch.exp(-(a*x1+x2)/5)*torch.sin((a*x1)**2+x2)
 
 def trial6(f, x):
     return x*f(x)
