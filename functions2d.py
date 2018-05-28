@@ -1,8 +1,10 @@
 import torch
 import numpy as np
 
-def real5(x1, x2):
-    return np.exp(-x1)*(x1+x2**3)
+def real5(x):
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    return torch.exp(-x1)*(x1+x2**3)
 
 def trial5(f, x):
     x1 = x[:, 0]
@@ -16,20 +18,44 @@ def trial5(f, x):
 
 int5=(0, 1, 0, 1)
 
-def real6(x1, x2):
-    a=3
-    return 1#torch.exp(-(a*x1+x2)/5)*torch.sin((a*x1)**2+x2)
+def real6(x, a=3):
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    return torch.exp(-(a*x1+x2)/5)*torch.sin((a*x1)**2+x2)
 
-def trial6(f, x):
-    return x*f(x)
+def trial6(f, x, a=3):
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    a2 = a**2
+    x1_2 = x1**2
+    eax5 = torch.exp(-a*x1/5)
+    ey5 = torch.exp(-x2/5)
+    ea5 = np.exp(-a/5)
+    e15 = np.exp(-1./5)
+    c1 = ey5*torch.sin(x2)
+    c2 = ey5*torch.sin(a2+x2)*ea5
+    c3 = eax5*torch.sin(a2*x1_2)-x1*np.sin(a2)*ea5
+    c4 = (eax5*torch.sin(a2*x1_2+1)-(1-x1)*np.sin(1)-x1*ea5*np.sin(a2+1))*e15
+    
+    A = (1-x1)*c1+x1*c2+(1-x2)*c3+x2*c4
+    return A + x1*(1-x1)*x2*(1-x2)*f(x).t()
 
 int6=(0, 1, 0, 1)
 
+# not complete
+
 def real7(x):
-    return torch.exp(-x/5)*torch.sin(x)
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    return x2**2*torch.sin(x1*np.pi)
 
 def trial7(f, x):
-    return x+x**2*f(x)
+    x1 = x[:, 0]
+    x2 = x[:, 1]
+    x_1 = Variable(torch.cat((torch.Tensor(x1), torch.Tensor(np.ones(len(x1)))), 1))
+    print(x_1)
+    B = 1
+    return B + x1*(1-x1)*x2*(f(x) - f(x_1) - 1)
 
 int7=(0, 1, 0, 1)
 
