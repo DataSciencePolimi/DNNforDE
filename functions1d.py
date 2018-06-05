@@ -1,60 +1,71 @@
 import torch
 import numpy as np
 
-l = 3
-def real0(x):
-    return torch.exp(-l*x)
 
-def trial0(f, x):
-    return 1 + x * f(x)
+# SIMPLE PROBLEM
 
-def diff0(t, x, gx):
-    return gx[0] + l * x
+def real0(t, lamb=3):
+    return torch.exp(-lamb*t)
+
+def trial0(f, t):
+    return 1 + t*f(t)
+
+def diff0(t, x, gx, lamb=3):
+    return gx[0]+lamb*x
 
 int0=(0, 1)
-
 degree0 = 1
 
-def real1(x):
-    return torch.exp(-x**2/2)/(1+x+x**3)+x**2
 
-def trial1(f, x):
-    return 1+x*f(x)
+# PROBLEM N. 1
+
+def real1(t):
+    t2 = t**2
+    return torch.exp(-t2/2)/(1+t+t**3)+t2
+
+def trial1(f, t):
+    return 1+t*f(t)
 
 def diff1(t, x, gx):
     t2 = t**2
     t3 = t**3
-    return gx[0] + (t + (1+3*t2)/(1+t+t3))*x - t3 - 2*t - t2*(1+3*t2)/(1+t+t3)
+    return gx[0]+(t+(1+3*t2)/(1+t+t3))*x-t3-2*t-t2*(1+3*t2)/(1+t+t3)
 
 int1=(0, 1)
-
 degree1 = 1
 
-def real2(x):
-    return torch.exp(-x/5)*torch.sin(x)
 
-def trial2(f, x):
-    return x*f(x)
+# PROBLEM N. 2
+
+def real2(t):
+    return torch.exp(-t/5)*torch.sin(t)
+
+def trial2(f, t):
+    return t*f(t)
 
 def diff2(t, x, gx):
-    return gx[0] + x/5 - torch.exp(-t/5) * torch.cos(t)
+    return gx[0]+x/5-torch.exp(-t/5)*torch.cos(t)
 
 int2=(0, 2)
-
 degree2 = 1
 
-def real3(x):
-    return torch.exp(-x/5)*torch.sin(x)
 
-def trial3(f, x):
-    return x+x**2*f(x)
+# PROBLEM N. 3
+
+def real3(t):
+    return torch.exp(-t/5)*torch.sin(t)
+
+def trial3(f, t):
+    return t+t**2*f(t)
 
 def diff3(t, x, gx):
-    return gx[1] + gx[0]/5 + x + torch.exp(-t/5) * torch.cos(t)/5
+    return gx[1]+gx[0]/5+x+torch.exp(-t/5)*torch.cos(t)/5
 
 int3=(0, 2)
-
 degree3 = 2
+
+
+# PROBLEM N. 3b
 
 def trial3b(f, x):
     return x*np.sin(1.)*np.exp(-1./5)+x*(1-x)*f(x)
