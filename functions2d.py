@@ -1,6 +1,9 @@
 import torch
 import numpy as np
 
+# done: p5, p6, burger, laplace
+# to do: p7, p8, burger2
+
 def real5(x):
     x1 = x[:, 0]
     x2 = x[:, 1]
