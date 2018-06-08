@@ -15,7 +15,7 @@ def diff0(t, x, gx, lamb=3):
 
 int0=(0, 1)
 degree0 = 1
-
+bc0=[(0, 1)]
 
 # PROBLEM N. 1
 
@@ -33,7 +33,7 @@ def diff1(t, x, gx):
 
 int1=(0, 1)
 degree1 = 1
-
+bc1=[(0, 1)]
 
 # PROBLEM N. 2
 
@@ -48,6 +48,7 @@ def diff2(t, x, gx):
 
 int2=(0, 2)
 degree2 = 1
+bc2=[(0, 0)]
 
 
 # PROBLEM N. 3
@@ -63,6 +64,7 @@ def diff3(t, x, gx):
 
 int3=(0, 2)
 degree3 = 2
+bc3=[(0, 0), (0, 1)]
 
 
 # PROBLEM N. 3b
@@ -71,8 +73,17 @@ def trial3b(f, x):
     return x*np.sin(1.)*np.exp(-1./5)+x*(1-x)*f(x)
 
 int3b=(0, 1)
+bc3b=[(0, 0), (1, np.sin(1)*np.exp(-0.2))]
 
-function={
+def diff_new(t, x, gx):
+    return t*gx[0]**2-x*gx[0]+1
+
+bc_new=[(1, 0)]
+degree_new = 1
+int_new=(0, 1)
+
+
+real={
 'p0':real0,
 'p1':real1,
 'p2':real2,
@@ -93,7 +104,8 @@ diff_eq={
 'p1':diff1,
 'p2':diff2,
 'p3':diff3,
-'p3b':diff3
+'p3b':diff3,
+'new':diff_new
 }
 
 interval={
@@ -101,7 +113,8 @@ interval={
 'p1':int1,
 'p2':int2,
 'p3':int3,
-'p3b':int3b
+'p3b':int3b,
+'new':int_new
 }
 
 degree={
@@ -109,10 +122,18 @@ degree={
 'p1':degree1,
 'p2':degree2,
 'p3':degree3,
-'p3b':degree3
+'p3b':degree3,
+'new':degree_new
 }
 
-
+bc={
+'p0':bc0,
+'p1':bc1,
+'p2':bc2,
+'p3':bc3,
+'p3b':bc3b,
+'new':bc_new
+}
 
 
 
