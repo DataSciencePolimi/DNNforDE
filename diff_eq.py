@@ -15,6 +15,14 @@ class DiffEq():
             t = Variable(torch.linspace(self.interval[0], self.interval[1], n).view(-1, 1), requires_grad=True)
         return t
             
+    def create_points2(self, n, points_type='rand'):
+        if points_type == 'rand':
+            t = Variable(torch.rand((n, 1))*(self.interval2[1]-self.interval2[0])+self.interval2[0], requires_grad=True)           
+        else:
+            t = Variable(torch.linspace(self.interval2[0], self.interval2[1], n).view(-1, 1), requires_grad=True)
+        return t
+    
+    
     # encodes the IC (now implemented just for 1 ic)
     def trial(self, t, x):
         l = len(self.ic)
@@ -23,7 +31,7 @@ class DiffEq():
         elif l == 1:
             return self.ic[0][1] + (t-self.ic[0][0])*x
         elif l == 2:
-            return self.ic[0][1]+(t-self.ic[0][0])*((t-self.ic[1][0])**2)*x+(t-self.ic[0][0])*self.ic[1][1]
+            return self.ic[0][1]+(t-self.ic[0][0])*(t-self.ic[1][0])*x+(t-self.ic[0][0])*self.ic[1][1]
         
         else:
             print('wrong ic')
@@ -53,8 +61,9 @@ class DiffEq():
         return f
     
     
-    def __init__(self, interval, real, ic, diff_eq, degree, energy=None, energy0=None):
+    def __init__(self, interval, real, ic, diff_eq, degree, interval2=None, energy=None, energy0=None):
         self.interval = interval
+        self.interval2 = interval2
         self.real = real
         self.ic = ic
         self.diff_eq = diff_eq
@@ -77,14 +86,15 @@ def create_exp(lamb=1):
                          real=real,
                          ic=ic,
                          diff_eq=diff_eq,
-                         degree=degree
+                         degree=degree,
                )
     return ex
     
           
         
 def create_ho(a=1, omega=1):
-    interval=(2*np.pi, 3*np.pi)
+    interval=(1*np.pi, 2*np.pi)
+    interval2=(0*np.pi, 1*np.pi)
     ic = [(0, 1), (0, 0)]
     def real(t):
         return torch.cos(omega*t)*a
@@ -97,11 +107,12 @@ def create_ho(a=1, omega=1):
     energy0 = 0.5
     
     ho = DiffEq(interval=interval,
-                         real=real,
-                         ic=ic,
-                         diff_eq=diff_eq,
-                         degree=degree,
-                         #energy=energy, energy0=energy0,
+                real=real,
+                ic=ic,
+                diff_eq=diff_eq,
+                degree=degree,
+                interval2=interval2,
+                #energy=energy, energy0=energy0,
                )
     return ho
           

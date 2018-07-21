@@ -13,7 +13,7 @@ def add_activation(fc, which, i):
         fc.add_module("logsig"+str(i), torch.nn.LogSigmoid())
         
     elif which == 'relu':
-        fc.add_module("logsig"+str(i), torch.nn.ReLu())
+        fc.add_module("relu"+str(i), torch.nn.ReLu())
         
     else:
         print('wrong activation')
@@ -33,7 +33,7 @@ def build_nn(h=1, k=1, D_in=1, D_out=1, activation='sigmoid'):
     return fc
 
 # train the nn to solve a differential equation (de), given the number of epoch, the number of training points, learning rate and other parameters (loss, optimizer, ...)
-def train_nn(de, nn, n_epoch, n_train, lr=1e-3, optim_type='Adam'):
+def train_nn(de, nn, n_epoch, n_train, lr=1e-3, optim_type='Adam', n_train2=0, points_type='rand'):
     Loss = []
     
     # loss function
@@ -41,7 +41,7 @@ def train_nn(de, nn, n_epoch, n_train, lr=1e-3, optim_type='Adam'):
 
     # optimizer
     if optim_type=='SGD':
-        optimizer = optim.SGD(nn.parameters(), lr=lr, momentum=0.9)
+        optimizer = optim.SGD(nn.parameters(), lr=lr)#, momentum=0.9)
     elif optim_type=='Adam':
         optimizer = optim.Adam(nn.parameters(), lr=lr)
     elif optim_type=='LBFGS':
@@ -56,10 +56,14 @@ def train_nn(de, nn, n_epoch, n_train, lr=1e-3, optim_type='Adam'):
         print('optimizer not supported')
         return np.nan, []
     
+    #scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=2000, gamma=0.3)
+    
     # training
     epsilon = 1e-9
     for epoch in range(n_epoch):
-        t_train = de.create_points(n_train)
+        t_train = de.create_points(n_train, points_type=points_type)
+        if de.interval2 != None:
+            t_train = torch.cat((t_train, de.create_points2(n_train2, points_type=points_type)), 0)
         f = de.pipeline(t_train, nn)
         
         loss = criterion(f, Variable(torch.zeros(f.shape)))
@@ -70,7 +74,7 @@ def train_nn(de, nn, n_epoch, n_train, lr=1e-3, optim_type='Adam'):
             optimizer.step(closure)
         else: 
             optimizer.step()
-        
+        #scheduler.step()
         Loss.append(loss.data.numpy())
         #if epoch > 2 and abs(Loss[-1]-Loss[-2]) < epsilon:
         #    print('equal loss')
@@ -83,8 +87,10 @@ def train_nn(de, nn, n_epoch, n_train, lr=1e-3, optim_type='Adam'):
 
 
 # test the performance: create a testing set, predict the values and calculate the error with respect to the real values
-def test_nn(de, nn, n_test):
-    t_test = de.create_points(n_test)
+def test_nn(de, nn, n_test, points_type='rand', interval_type='same'):
+    t_test = de.create_points(n_test, points_type=points_type)
+    if interval_type != 'same':        
+        t_test = torch.cat((t_test, de.create_points2(n_test, points_type=points_type)), 0)
     x_pred = de.predict(t_test, nn)
     x_real = de.real(t_test)
     error = ((x_pred-x_real)**2).mean()
